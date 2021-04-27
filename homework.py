@@ -2,12 +2,11 @@ import logging
 import logging.config
 import os
 import time
-from typing import Callable, Dict
+from typing import Dict
 
 import requests
 import telegram
 from dotenv import load_dotenv
-from telegram.bot import Bot
 
 load_dotenv()
 
