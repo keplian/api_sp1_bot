@@ -12,7 +12,12 @@ load_dotenv()
 PRAKTIKUM_TOKEN = os.environ["PRAKTIKUM_TOKEN"]
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
-PRAKTIKUM_API_URL = os.environ["PRAKTIKUM_API_URL"]
+
+# так валятся тесты
+# PRAKTIKUM_API_URL = os.environ["PRAKTIKUM_API_URL"]
+PRAKTIKUM_API_URL = (
+    "https://praktikum.yandex.ru/api/user_api/homework_statuses/"
+)
 
 CHECKING_TIME = 300
 
