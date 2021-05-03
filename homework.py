@@ -46,10 +46,14 @@ def parse_homework_status(homework: Dict) -> str:
     statuses = {
         "rejected": "К сожалению в работе нашлись ошибки.",
         "reviewed": "Проект взят в работу ревьювером.",
-        "approved": "Ревьюеру всё понравилось, можно приступать к следующему уроку.",
+        "approved": (
+            "Ревьюеру всё понравилось, " 
+            "можно приступать к следующему уроку."),
     }
-
-    return f'У вас проверили работу "{homework_name}"!\n\n{statuses[homework.get("status")]}'
+    return (
+        f'У вас проверили работу "{homework_name}"!\n\n'
+        f'{statuses[homework.get("status")]}'
+    )
 
 
 def get_homework_statuses(current_timestamp: int) -> dict:
