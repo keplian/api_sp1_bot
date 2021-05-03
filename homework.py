@@ -21,21 +21,23 @@ logger = logging.getLogger()
 
 
 def check_api_for_mandatory(new_homework):
-    statuses_list = ["rejected", "reviewed", "approved"]
-    homework = new_homework.get("homeworks")[0]
-    checking_list = [
-        isinstance(int(new_homework.get("current_date")), int),
-        homework,
-        homework.get("homework_name"),
-        homework.get("status") in statuses_list,
-    ]
-    is_list_true = all(checking_list)
-    if not is_list_true:
-        if new_homework.get("error"):
-            logger.error("Api returned error")
-            raise Exception("Api returned error")
-    logger.debug(f"checking api list returned {is_list_true}")
-    return is_list_true
+    homework = new_homework.get("homeworks")
+    if homework:
+        statuses_list = ["rejected", "reviewed", "approved"]
+        checking_list = [
+            isinstance(int(new_homework[0].get("current_date")), int),
+            homework,
+            homework[0].get("homework_name"),
+            homework[0].get("status") in statuses_list,
+        ]
+        is_list_true = all(checking_list)
+        if not is_list_true:
+            if new_homework.get("error"):
+                logger.error("Api returned error")
+                raise Exception("Api returned error")
+        logger.debug(f"checking api list returned {is_list_true}")
+        return is_list_true
+    return False
 
 
 def parse_homework_status(homework: Dict) -> str:
@@ -54,25 +56,34 @@ def get_homework_statuses(current_timestamp: int) -> dict:
     """Return student homework status from yandex api in JSON format."""
     data = {"from_date": current_timestamp}
     headers = {"Authorization": f"OAuth {PRAKTIKUM_TOKEN}"}
-    homework_statuses = requests.get(
-        PRAKTIKUM_API_URL,
-        params=data,
-        headers=headers,
-    )
+    try:
+        homework_statuses = requests.get(
+            PRAKTIKUM_API_URL,
+            params=data,
+            headers=headers,
+        )
+        homework_statuses.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.exception(e)
+        send_message(str(e))
+        raise
     return homework_statuses.json()
 
 
+bot = telegram.Bot(token=TELEGRAM_TOKEN)
 try:
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    bot.get_me()
 except telegram.error.TelegramError as e:
-    logger.error(f"Bot was not created. Error: {e}")
+    logger.exception(f"Bot was not created. Error: {str(e)}")
+    raise
 
 
 def send_message(message: str, bot_client=bot):
-    "Sends message to student telegram about homework status."
+    "Sends message to student's telegram."
     try:
         return bot_client.send_message(chat_id=CHAT_ID, text=message)
-    except:
+    except telegram.error.TelegramError as e:
+        logger.exception(e)
         raise
 
 
@@ -86,12 +97,14 @@ def main():
             new_homework = get_homework_statuses(current_timestamp)
             if check_api_for_mandatory(new_homework):
                 try:
-                    homework = new_homework.get("homeworks")[0]
+                    homework = new_homework.get("homeworks")
                     text_for_message = parse_homework_status(homework)
                     send_message(text_for_message)
                     logger.info("Message was send")
                 except:
-                    logger.error(f"Error while trying send message: {e}")
+                    logger.exception()(
+                        f"Error while trying send message: {str(e)}"
+                    )
                     raise
             current_timestamp = new_homework.get(
                 "current_date", current_timestamp
@@ -99,8 +112,8 @@ def main():
             time.sleep(CHECKING_TIME)
 
         except Exception as e:
-            error = logger.exception(f"Бот столкнулся с ошибкой: {e}")
-            send_message(error)
+            logger.exception(f"Бот столкнулся с ошибкой: {str(e)}")
+            send_message(f"Бот столкнулся с ошибкой: {str(e)}")
             time.sleep(5)
 
 
