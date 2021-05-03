@@ -47,8 +47,8 @@ def parse_homework_status(homework: Dict) -> str:
         "rejected": "К сожалению в работе нашлись ошибки.",
         "reviewed": "Проект взят в работу ревьювером.",
         "approved": (
-            "Ревьюеру всё понравилось, " 
-            "можно приступать к следующему уроку."),
+            "Ревьюеру всё понравилось, можно приступать к следующему уроку."
+        ),
     }
     return (
         f'У вас проверили работу "{homework_name}"!\n\n'
@@ -100,16 +100,10 @@ def main():
         try:
             new_homework = get_homework_statuses(current_timestamp)
             if check_api_for_mandatory(new_homework):
-                try:
-                    homework = new_homework.get("homeworks")
-                    text_for_message = parse_homework_status(homework)
-                    send_message(text_for_message)
-                    logger.info("Message was send")
-                except:
-                    logger.exception()(
-                        f"Error while trying send message: {str(e)}"
-                    )
-                    raise
+                homework = new_homework.get("homeworks")
+                text_for_message = parse_homework_status(homework)
+                send_message(text_for_message)
+                logger.info("Message was send")
             current_timestamp = new_homework.get(
                 "current_date", current_timestamp
             )  # обновить timestamp
