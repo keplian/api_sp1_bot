@@ -117,9 +117,12 @@ def main():
             time.sleep(CHECKING_TIME)
 
         except Exception as e:
-            logger.exception(f"Бот столкнулся с ошибкой: {str(e)}")
-            send_message(f"Бот столкнулся с ошибкой: {str(e)}")
-            time.sleep(5)
+            store_exception = None
+            if store_exception != e:
+                logger.exception(f"Бот столкнулся с ошибкой: {str(e)}")
+                send_message(f"Бот столкнулся с ошибкой: {str(e)}")
+                store_exception = e
+            time.sleep(60)
 
 
 if __name__ == "__main__":
