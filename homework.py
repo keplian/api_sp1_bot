@@ -30,7 +30,7 @@ def check_api_for_mandatory(new_homework):
     if homework:
         statuses_list = ["rejected", "reviewed", "approved"]
         checking_list = [
-            isinstance(int(new_homework[0].get("current_date")), int),
+            isinstance(int(new_homework.get("current_date")), int),
             homework,
             homework[0].get("homework_name"),
             homework[0].get("status") in statuses_list,
@@ -47,7 +47,7 @@ def check_api_for_mandatory(new_homework):
 
 def parse_homework_status(homework: Dict) -> str:
     """Takes a response from api homework and parse answers for user."""
-    homework_name = homework.get("homework_name")
+    homework_name = homework[0].get("homework_name")
     statuses = {
         "rejected": "К сожалению в работе нашлись ошибки.",
         "reviewed": "Проект взят в работу ревьювером.",
@@ -57,7 +57,7 @@ def parse_homework_status(homework: Dict) -> str:
     }
     return (
         f'У вас проверили работу "{homework_name}"!\n\n'
-        f'{statuses[homework.get("status")]}'
+        f'{statuses[homework[0].get("status")]}'
     )
 
 
@@ -99,6 +99,7 @@ def send_message(message: str, bot_client=bot):
 
 
 def main():
+    store_exception = None
     logger.debug("Bot is starting...")
 
     current_timestamp = int(time.time())  # начальное значение timestamp
@@ -117,7 +118,6 @@ def main():
             time.sleep(CHECKING_TIME)
 
         except Exception as e:
-            store_exception = None
             if store_exception != e:
                 logger.exception(f"Бот столкнулся с ошибкой: {str(e)}")
                 send_message(f"Бот столкнулся с ошибкой: {str(e)}")
