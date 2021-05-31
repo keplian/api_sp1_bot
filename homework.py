@@ -19,7 +19,7 @@ PRAKTIKUM_API_URL = (
     "https://praktikum.yandex.ru/api/user_api/homework_statuses/"
 )
 
-CHECKING_TIME = 300
+CHECKING_TIME = 600
 
 logging.config.fileConfig("logging.ini")
 logger = logging.getLogger()
@@ -122,7 +122,7 @@ def main():
                 logger.exception(f"Бот столкнулся с ошибкой: {str(e)}")
                 send_message(f"Бот столкнулся с ошибкой: {str(e)}")
                 store_exception = e
-            time.sleep(60)
+            time.sleep(600)
 
 
 if __name__ == "__main__":
